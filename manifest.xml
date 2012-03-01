@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<extension engine="1.0">
+	<id>pun_markdown</id>
+	<title>Markdown</title>
+	<version>0.1</version>
+	<description>Use markdown syntax to format posts and signatures.</description>
+	<author>Mike Bajur</author>
+	<minversion>1.4.2</minversion>
+	<maxtestedon>1.4.2</maxtestedon>
+
+	<hooks>
+		<!-- Include markdown library in include/parser.php -->
+		<hook id="ps_start"><![CDATA[
+			require $ext_info['path'].'/markdown.php';
+		]]></hook>
+
+		<!-- Overwrite bbcode parsing in parse_message() -->
+		<hook id="ps_parse_message_post_censor"><![CDATA[
+			$text = Markdown($text);
+
+			if ($forum_config['o_smilies'] == '1' && $forum_user['show_smilies'] == '1' && $hide_smilies == '0')
+			$text = do_smilies($text);
+
+			return $text;
+		]]></hook>
+
+		<!-- Overwrite bbcode parsing in parse_signature() -->
+		<hook id="ps_parse_signature_post_censor"><![CDATA[
+			$text = Markdown($text);
+
+			if ($forum_config['o_smilies'] == '1' && $forum_user['show_smilies'] == '1')
+			$text = do_smilies($text);
+
+			return $text;
+		]]></hook>
+
+		<!-- Remove bbcode help link and add markdown link to quickreply formating help links -->
+		<hook id="vt_quickpost_pre_display"><![CDATA[
+			$forum_page['text_options']['bbcode'] = False;
+			$forum_page['text_options']['img'] = False;
+			$forum_page['text_options']['markdown_extra'] = '<span'.(empty($forum_page['text_options']) ? ' class="first-item"' : '').'><a class="exthelp" href="http://michelf.com/projects/php-markdown/extra/" title="'.sprintf($lang_common['Help page'], 'Markdown extra').'">Markdown extra</a></span>';
+		]]></hook>
+
+		<!-- Remove bbcode help link and add markdown link to reply formating help links -->
+		<hook id="po_pre_header_load"><![CDATA[
+			$forum_page['text_options']['bbcode'] = False;
+			$forum_page['text_options']['img'] = False;
+			$forum_page['text_options']['markdown_extra'] = '<span'.(empty($forum_page['text_options']) ? ' class="first-item"' : '').'><a class="exthelp" href="http://michelf.com/projects/php-markdown/extra/" title="'.sprintf($lang_common['Help page'], 'Markdown extra').'">Markdown extra</a></span>';
+		]]></hook>
+	</hooks>
+</extension>
